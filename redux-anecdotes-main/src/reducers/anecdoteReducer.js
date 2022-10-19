@@ -1,3 +1,5 @@
+import { createSlice } from '@reduxjs/toolkit'
+
 const anecdotesAtStart = [
   'If it hurts, do it more often',
   'Adding manpower to a late software project makes it later!',
@@ -18,34 +20,25 @@ const asObject = (anecdote) => {
 }
 
 const initialState = anecdotesAtStart.map(asObject)
-
-const reducer = (state = initialState, action) => {
-  console.log('state now: ', state)
-  console.log('action', action)
-  switch(action.type){
-    case 'VOTE':
-      const anecdoteToChange = state.find(a => a.id === action.data.id)
+const anecdoteSlice = createSlice({
+  name: 'anecdotes',
+  initialState,
+  reducers :{
+    voteAnecdote(state, action){
+      console.log('state now: ', state)
+      console.log('action', action)
+      const anecdoteToChange = state.find(a => a.id === action.payload)
       anecdoteToChange.votes += 1
-      return state.map(a=>a.id === action.data.id? anecdoteToChange : a)
-    case 'NEW':
-      const newAnecdote = asObject(action.data.text)
-      const changedAnecdotes = state.concat(newAnecdote)
-      return changedAnecdotes
-    default:
-      return state
-  }
- 
-}
-export const voteAction = (id) =>{
-  return{
-    type: 'VOTE',
-    data: {id}
-  }
-}
-export const newAction = (text) =>{
-  return{
-    type: 'NEW',
-    data: {text}
-  }
-}
-export default reducer
+      //The next line is not used, because either return a new value *or* modify the draft with immer.
+      //return state.map(a=>a.id === action.payload? anecdoteToChange : a)
+    },
+    newAnecdote(state, action){
+      console.log('state now: ', state)
+      console.log('action', action)
+      const newAnecdote = asObject(action.payload)
+      state.push(newAnecdote)
+    }
+  } 
+})
+export const { voteAnecdote, newAnecdote } = anecdoteSlice.actions
+export default anecdoteSlice.reducer
